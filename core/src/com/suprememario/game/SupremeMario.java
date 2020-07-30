@@ -6,15 +6,25 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class SupremeMario extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture background; //bg img
 	Texture[] mario; //array since multiple frames are added
+
 	int marioState = 0; //to loop through each frames of Mario
 	int pause = 0; //to slow down animation speed since render() speed is fast
 	float gravity = 0.8f;
 	float velocity = 0;
 	int marioY = 0; //y-position of mario
+
+	//Coin
+	Texture coin; //coin img
+	ArrayList<Integer> coinXs = new ArrayList<Integer>();
+	ArrayList<Integer> coinYs = new ArrayList<Integer>();
+	int coinCount = 0; //for spacing
 	
 	@Override
 	public void create () { //create() method gets called onCreate
@@ -30,6 +40,9 @@ public class SupremeMario extends ApplicationAdapter {
 		mario[2] = new Texture("frame-3.png");
 		mario[3] = new Texture("frame-4.png");
 
+		//coin
+		coin = new Texture("coin.png");
+
 		//center mario
 		marioY = Gdx.graphics.getHeight() / 2;
 	}
@@ -38,6 +51,18 @@ public class SupremeMario extends ApplicationAdapter {
 	public void render () { //render() method gets called over and over again!
 		batch.begin();
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); //draws bg image at full screen! Also x=0 & y=0 is at bottom-left corner of the screen!
+
+		if (coinCount < 100) { //after every 100 render loop, add coin!
+			coinCount++;
+		} else {
+			coinCount = 0;
+			makeCoin(); //this simply creates the coordinates of the coin
+		}
+
+		for (int i=0; i < coinXs.size(); i++) { //this will create and move the coin across from right to left
+			batch.draw(coin, coinXs.get(i), coinYs.get(i)); //draws the coin at the right end of the screen
+			coinXs.set(i, coinXs.get(i) - 4); //moves coin to left by 4 at every render count
+		}
 
 		//to loop through each frames of Mario. For need for For/While loops since render() method loops for us!
 		if (pause < 8) { //frame changes are every 8 render loops - this slows down animation!
@@ -80,4 +105,16 @@ public class SupremeMario extends ApplicationAdapter {
 		batch.dispose();
 
 	}
+
+	public void makeCoin() {
+		Random random = new Random();
+		float randomNumber = random.nextFloat(); //between 0 and 1
+
+		//random height between 0 and Gdx.graphics.getHeight()
+		float height = randomNumber * Gdx.graphics.getHeight();
+
+		coinYs.add((int) height); //coin is made at random height within the screen
+		coinXs.add(Gdx.graphics.getWidth()); //coin is made at the right end of the screen
+	}
+
 }
